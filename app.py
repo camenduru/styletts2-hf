@@ -39,7 +39,7 @@ Is there a long queue on this space? Duplicate it and add a GPU to skip the wait
             inp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
             voice = gr.Dropdown(['Angie', 'Daniel', 'Tom', 'LJ', 'Pat', 'Tom', 'Dotrice', 'Mouse', 'William'], label="Voice", info="Select a voice. We use some voices from Tortoise TTS.", value='Tom', interactive=True)
         with gr.Column(scale=1):
-            btn = gr.Button("Synthesize")
+            btn = gr.Button("Synthesize", variant="primary")
             audio = gr.Audio(interactive=False, label="Synthesized Audio")
             btn.click(synthesize, inputs=[inp, voice], outputs=[audio], concurrency_limit=4)
     
