@@ -16,8 +16,10 @@ voices = {
 def synthesize(text, voice):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
+    if len(text) > 500:
+        raise gr.Error("Text must be under 500 characters")
     v = voice.lower()
-    return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=15, embedding_scale=1))
+    return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
 
 with gr.Blocks(title="StyleTTS 2", css="footer{display:none !important}", theme=theme) as demo:
     gr.Markdown("""# StyleTTS 2
@@ -39,8 +41,8 @@ Is there a long queue on this space? Duplicate it and add a GPU to skip the wait
         with gr.Column(scale=1):
             btn = gr.Button("Synthesize")
             audio = gr.Audio(interactive=False, label="Synthesized Audio")
-            btn.click(synthesize, inputs=[inp, voice], outputs=[audio])
+            btn.click(synthesize, inputs=[inp, voice], outputs=[audio], concurrency_limit=4)
     
 if __name__ == "__main__":
-    demo.launch(show_api=False)
+    demo.queue(api_open=False, max_size=15).launch(show_api=False)
 
