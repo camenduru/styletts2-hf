@@ -12,8 +12,8 @@ for v in voicelist:
 def synthesize(text, voice):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
-    if len(text) > 1500:
-        raise gr.Error("Text must be under 1500 characters")
+    if len(text) > 500:
+        raise gr.Error("Text must be under 500 characters")
     v = voice.lower()
     return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
 def clsynthesize(text, voice):
@@ -25,8 +25,8 @@ def clsynthesize(text, voice):
 def ljsynthesize(text):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
-    if len(text) > 1500:
-        raise gr.Error("Text must be under 1500 characters")
+    if len(text) > 500:
+        raise gr.Error("Text must be under 500 characters")
     noise = torch.randn(1,1,256).to('cuda' if torch.cuda.is_available() else 'cpu')
     return (24000, ljspeechimportable.inference(text, noise, diffusion_steps=7, embedding_scale=1))
 
