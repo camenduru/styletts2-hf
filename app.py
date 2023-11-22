@@ -61,6 +61,8 @@ with gr.Blocks() as lj:
 with gr.Blocks(title="StyleTTS 2", css="footer{display:none !important}", theme=theme) as demo:
     gr.Markdown("""# StyleTTS 2
 
+StyleTTS 2 demo by [mrfakename](https://twitter.com/realmrfakename).
+
 [Paper](https://arxiv.org/abs/2306.07691) - [Samples](https://styletts2.github.io/) - [Code](https://github.com/yl4579/StyleTTS2)
 
 A free demo of StyleTTS 2. **I am not affiliated with the StyleTTS 2 Authors.**
