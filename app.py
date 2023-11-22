@@ -66,7 +66,9 @@ A free demo of StyleTTS 2. Not affiliated with the StyleTTS 2 Authors.
 
 **Before using this demo, you agree to inform the listeners that the speech samples are synthesized by the pre-trained models, unless you have the permission to use the voice you synthesize. That is, you agree to only use voices whose speakers grant the permission to have their voice cloned, either directly or by license before making synthesized voices public, or you have to publicly announce that these voices are synthesized if you do not have the permission to use these voices.**
 
-Is there a long queue on this space? Duplicate it and add a GPU to skip the wait!""")
+Is there a long queue on this space? Duplicate it and add a more powerful GPU to skip the wait!
+
+**NOTE: StyleTTS 2 does better on longer texts.** For example, making it say "hi" will produce a lower-quality result than making it say a longer phrase.""")
     gr.DuplicateButton("Duplicate Space")
     gr.TabbedInterface([vctk, clone, lj], ['Multi-Voice', 'Voice Cloning', 'LJSpeech'])
 if __name__ == "__main__":
