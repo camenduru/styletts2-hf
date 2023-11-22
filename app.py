@@ -2,14 +2,19 @@ import gradio as gr
 import styletts2importable
 import ljspeechimportable
 import torch
+import os
+import pickle
 theme = gr.themes.Base(
     font=[gr.themes.GoogleFont('Libre Franklin'), gr.themes.GoogleFont('Public Sans'), 'system-ui', 'sans-serif'],
 )
 voicelist = ['f-us-1', 'f-us-2', 'f-us-3', 'f-us-4', 'm-us-1', 'm-us-2', 'm-us-3', 'm-us-4']
 voices = {}
 # todo: cache computed style, load using pickle
-for v in voicelist:
-    voices[v] = styletts2importable.compute_style(f'voices/{v}.wav')
+if os.path.exists('voices.pkl', 'rb') as f:
+    voices = pickle.load(f)
+else:
+    for v in voicelist:
+        voices[v] = styletts2importable.compute_style(f'voices/{v}.wav')
 def synthesize(text, voice):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
