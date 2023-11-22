@@ -27,15 +27,18 @@ def synthesize(text, voice):
         raise gr.Error("Text must be under 300 characters")
     v = voice.lower()
     return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
-def longsynthesize(text, voice, progress=gr.Progress()):
-    if text.strip() == "":
-        raise gr.Error("You must enter some text")
-    texts = split_and_recombine_text(text)
-    v = voice.lower()
-    audios = []
-    for t in progress.tqdm(texts):
-        audios.append(styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
-    return (24000, np.concatenate(audios))
+def longsynthesize(text, voice, password, progress=gr.Progress()):
+    if password == os.environ['ACCESS_CODE']:
+        if text.strip() == "":
+            raise gr.Error("You must enter some text")
+        texts = split_and_recombine_text(text)
+        v = voice.lower()
+        audios = []
+        for t in progress.tqdm(texts):
+            audios.append(styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
+        return (24000, np.concatenate(audios))
+    else:
+        raise gr.Error('Wrong access code')
 def clsynthesize(text, voice):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
@@ -73,12 +76,13 @@ with gr.Blocks() as clone:
 with gr.Blocks() as longText:
     with gr.Row():
         with gr.Column(scale=1):
-            clinp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
-            clvoice = gr.Audio(label="Voice", interactive=True, type='filepath', max_length=300)
+            lnginp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
+            lngvoice = gr.Dropdown(voicelist, label="Voice", info="Select a default voice.", value='m-us-1', interactive=True)
+            lngpwd = gr.Textbox(label="Access code", info="This feature is in beta. You need an access code to use it as it uses more resources and we would like to prevent abuse")
         with gr.Column(scale=1):
-            clbtn = gr.Button("Synthesize", variant="primary")
-            claudio = gr.Audio(interactive=False, label="Synthesized Audio")
-            clbtn.click(longsynthesize, inputs=[clinp, clvoice], outputs=[claudio], concurrency_limit=4)
+            lngbtn = gr.Button("Synthesize", variant="primary")
+            lngaudio = gr.Audio(interactive=False, label="Synthesized Audio")
+            lngbtn.click(longsynthesize, inputs=[lnginp, lngvoice, lngpwd], outputs=[lngaudio], concurrency_limit=4)
 with gr.Blocks() as lj:
     with gr.Row():
         with gr.Column(scale=1):
