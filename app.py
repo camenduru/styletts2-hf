@@ -9,6 +9,8 @@ theme = gr.themes.Base(
 )
 voicelist = ['f-us-1', 'f-us-2', 'f-us-3', 'f-us-4', 'm-us-1', 'm-us-2', 'm-us-3', 'm-us-4']
 voices = {}
+import phonemizer
+global_phonemizer = phonemizer.backend.EspeakBackend(language='en-us', preserve_punctuation=True,  with_stress=True)
 # todo: cache computed style, load using pickle
 # if os.path.exists('voices.pkl'):
     # with open('voices.pkl', 'rb') as f:
@@ -19,20 +21,20 @@ for v in voicelist:
 def synthesize(text, voice):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
-    if len(text) > 300:
+    if len(global_phonemizer.phonemize([text])) > 300:
         raise gr.Error("Text must be under 300 characters")
     v = voice.lower()
     return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
 def clsynthesize(text, voice):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
-    if len(text) > 300:
+    if global_phonemizer.phonemize([text]) > 300:
         raise gr.Error("Text must be under 300 characters")
     return (24000, styletts2importable.inference(text, styletts2importable.compute_style(voice), alpha=0.3, beta=0.7, diffusion_steps=20, embedding_scale=1))
 def ljsynthesize(text):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
-    if len(text) > 300:
+    if global_phonemizer.phonemize([text]) > 300:
         raise gr.Error("Text must be under 300 characters")
     noise = torch.randn(1,1,256).to('cuda' if torch.cuda.is_available() else 'cpu')
     return (24000, ljspeechimportable.inference(text, noise, diffusion_steps=7, embedding_scale=1))
