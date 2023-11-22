@@ -5,16 +5,10 @@ import torch
 theme = gr.themes.Base(
     font=[gr.themes.GoogleFont('Libre Franklin'), gr.themes.GoogleFont('Public Sans'), 'system-ui', 'sans-serif'],
 )
-voices = {
-    'angie': styletts2importable.compute_style('voices/angie.wav'),
-    'daniel': styletts2importable.compute_style('voices/daniel.wav'),
-    'dotrice': styletts2importable.compute_style('voices/dotrice.wav'),
-    'lj': styletts2importable.compute_style('voices/lj.wav'),
-    'mouse': styletts2importable.compute_style('voices/mouse.wav'),
-    'pat': styletts2importable.compute_style('voices/pat.wav'),
-    'tom': styletts2importable.compute_style('voices/tom.wav'),
-    'william': styletts2importable.compute_style('voices/william.wav'),
-}
+voicelist = ['f-us-1', 'f-us-2', 'f-us-3', 'f-us-4', 'm-us-1', 'm-us-2', 'm-us-3', 'm-us-4']
+voices = {}
+for v in voicelist:
+    voices[v] = styletts2importable.compute_style(f'voices/{v}.wav')
 def synthesize(text, voice):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
@@ -22,6 +16,12 @@ def synthesize(text, voice):
         raise gr.Error("Text must be under 500 characters")
     v = voice.lower()
     return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
+def clsynthesize(text, voice):
+    if text.strip() == "":
+        raise gr.Error("You must enter some text")
+    if len(text) > 500:
+        raise gr.Error("Text must be under 500 characters")
+    return (24000, styletts2importable.inference(text, styletts2importable.compute_style(voice), alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
 def ljsynthesize(text):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
@@ -35,11 +35,20 @@ with gr.Blocks() as vctk:
     with gr.Row():
         with gr.Column(scale=1):
             inp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
-            voice = gr.Dropdown(['Angie', 'Daniel', 'Tom', 'LJ', 'Pat', 'Tom', 'Dotrice', 'Mouse', 'William'], label="Voice", info="Select a voice. We use some voices from Tortoise TTS.", value='Tom', interactive=True)
+            voice = gr.Dropdown(voicelist, label="Voice", info="Select a default voice.", value='m-us-1', interactive=True)
         with gr.Column(scale=1):
             btn = gr.Button("Synthesize", variant="primary")
             audio = gr.Audio(interactive=False, label="Synthesized Audio")
             btn.click(synthesize, inputs=[inp, voice], outputs=[audio], concurrency_limit=4)
+with gr.Blocks() as clone:
+    with gr.Row():
+        with gr.Column(scale=1):
+            clinp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
+            clvoice = gr.Audio(label="Voice", info="Select a voice.", value='Tom', interactive=True)
+        with gr.Column(scale=1):
+            clbtn = gr.Button("Synthesize", variant="primary")
+            claudio = gr.Audio(interactive=False, label="Synthesized Audio")
+            clbtn.click(clsynthesize, inputs=[clinp, clvoice], outputs=[claudio], concurrency_limit=4)
 with gr.Blocks() as lj:
     with gr.Row():
         with gr.Column(scale=1):
@@ -57,11 +66,9 @@ A free demo of StyleTTS 2. Not affiliated with the StyleTTS 2 Authors.
 
 **Before using this demo, you agree to inform the listeners that the speech samples are synthesized by the pre-trained models, unless you have the permission to use the voice you synthesize. That is, you agree to only use voices whose speakers grant the permission to have their voice cloned, either directly or by license before making synthesized voices public, or you have to publicly announce that these voices are synthesized if you do not have the permission to use these voices.**
 
-This space does NOT allow voice cloning. We use some default voice from Tortoise TTS instead.
-
 Is there a long queue on this space? Duplicate it and add a GPU to skip the wait!""")
     gr.DuplicateButton("Duplicate Space")
-    gr.TabbedInterface([vctk, lj], ['Multi-Voice', 'LJSpeech'])
+    gr.TabbedInterface([vctk, clone, lj], ['Multi-Voice', 'Voice Cloning', 'LJSpeech'])
 if __name__ == "__main__":
     demo.queue(api_open=False, max_size=15).launch(show_api=False)
 
