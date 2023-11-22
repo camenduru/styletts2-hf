@@ -16,6 +16,6 @@ typing
 typing-extensions
 git+https://github.com/resemble-ai/monotonic_align.git
 scipy
-deep-phonemizer
+phonemizer
 cached-path
 gradio
