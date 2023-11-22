@@ -36,7 +36,7 @@ def longsynthesize(text, voice, password, progress=gr.Progress()):
         v = voice.lower()
         audios = []
         for t in progress.tqdm(texts):
-            audios.append(styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
+            audios.append(styletts2importable.inference(t, voices[v], alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
         return (24000, np.concatenate(audios))
     else:
         raise gr.Error('Wrong access code')
