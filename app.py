@@ -7,7 +7,7 @@ theme = gr.themes.Base(
 )
 voicelist = ['f-us-1', 'f-us-2', 'f-us-3', 'f-us-4', 'm-us-1', 'm-us-2', 'm-us-3', 'm-us-4']
 voices = {}
-# todo cache computed style
+# todo: cache computed style, load using pickle
 for v in voicelist:
     voices[v] = styletts2importable.compute_style(f'voices/{v}.wav')
 def synthesize(text, voice):
@@ -72,7 +72,16 @@ Is there a long queue on this space? Duplicate it and add a more powerful GPU to
 **NOTE: StyleTTS 2 does better on longer texts.** For example, making it say "hi" will produce a lower-quality result than making it say a longer phrase.""")
     gr.DuplicateButton("Duplicate Space")
     gr.TabbedInterface([vctk, clone, lj], ['Multi-Voice', 'Voice Cloning', 'LJSpeech'])
-    gr.Markdown("Demo by by [mrfakename](https://twitter.com/realmrfakename). I am not affiliated with the StyleTTS 2 authors.")
+    gr.Markdown("""
+Demo by by [mrfakename](https://twitter.com/realmrfakename). I am not affiliated with the StyleTTS 2 authors.
+
+Run this demo locally using Docker:
+
+```bash
+docker run -it -p 7860:7860 --platform=linux/amd64 --gpus all \
+	registry.hf.space/styletts2-styletts2:latest python app.py
+```
+""")
 if __name__ == "__main__":
     demo.queue(api_open=False, max_size=15).launch(show_api=False)
 
