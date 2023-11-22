@@ -1,6 +1,6 @@
 from cached_path import cached_path
-print("GRUUT")
-from gruut_phonemize import gphonemize
+# print("GRUUT")
+# from gruut_phonemize import gphonemize
 
 # from dp.phonemizer import Phonemizer
 print("NLTK")
@@ -135,10 +135,7 @@ sampler = DiffusionSampler(
 
 def inference(text, ref_s, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding_scale=1, use_gruut=False):
     text = text.strip()
-    if use_gruut:
-        ps = gphonemize(text)
-    else:
-        ps = global_phonemizer.phonemize([text])
+    ps = global_phonemizer.phonemize([text])
     ps = word_tokenize(ps[0])
     ps = ' '.join(ps)
     tokens = textclenaer(ps)
@@ -207,10 +204,7 @@ def inference(text, ref_s, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding
 
 def LFinference(text, s_prev, ref_s, alpha = 0.3, beta = 0.7, t = 0.7, diffusion_steps=5, embedding_scale=1, use_gruut=False):
     text = text.strip()
-    if use_gruut:
-        ps = gphonemize(text)
-    else:
-        ps = global_phonemizer.phonemize([text])
+    ps = global_phonemizer.phonemize([text])
     ps = word_tokenize(ps[0])
     ps = ' '.join(ps)
     ps = ps.replace('``', '"')
@@ -287,10 +281,7 @@ def LFinference(text, s_prev, ref_s, alpha = 0.3, beta = 0.7, t = 0.7, diffusion
 
 def STinference(text, ref_s, ref_text, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding_scale=1, use_gruut=False):
     text = text.strip()
-    if use_gruut:
-        ps = gphonemize(text)
-    else:
-        ps = global_phonemizer.phonemize([text])
+    ps = global_phonemizer.phonemize([text])
     ps = word_tokenize(ps[0])
     ps = ' '.join(ps)
 
@@ -299,10 +290,7 @@ def STinference(text, ref_s, ref_text, alpha = 0.3, beta = 0.7, diffusion_steps=
     tokens = torch.LongTensor(tokens).to(device).unsqueeze(0)
 
     ref_text = ref_text.strip()
-    if use_gruut:
-        ps = gphonemize(text)
-    else:
-        ps = global_phonemizer.phonemize([ref_text])
+    ps = global_phonemizer.phonemize([ref_text])
     ps = word_tokenize(ps[0])
     ps = ' '.join(ps)
 
