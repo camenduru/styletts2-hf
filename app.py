@@ -10,8 +10,9 @@ theme = gr.themes.Base(
 voicelist = ['f-us-1', 'f-us-2', 'f-us-3', 'f-us-4', 'm-us-1', 'm-us-2', 'm-us-3', 'm-us-4']
 voices = {}
 # todo: cache computed style, load using pickle
-if os.path.exists('voices.pkl', 'rb') as f:
-    voices = pickle.load(f)
+if os.path.exists('voices.pkl'):
+    with open('voices.pkl', 'rb') as f:
+        voices = pickle.load(f)
 else:
     for v in voicelist:
         voices[v] = styletts2importable.compute_style(f'voices/{v}.wav')
