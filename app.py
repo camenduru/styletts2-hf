@@ -3,6 +3,8 @@ import styletts2importable
 import ljspeechimportable
 import torch
 import os
+from tortoise.utils.text import split_and_recombine_text
+import numpy as np
 import pickle
 theme = gr.themes.Base(
     font=[gr.themes.GoogleFont('Libre Franklin'), gr.themes.GoogleFont('Public Sans'), 'system-ui', 'sans-serif'],
@@ -25,6 +27,15 @@ def synthesize(text, voice):
         raise gr.Error("Text must be under 300 characters")
     v = voice.lower()
     return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
+def longsynthesize(text, voice, progress=gr.Progress()):
+    if text.strip() == "":
+        raise gr.Error("You must enter some text")
+    texts = split_and_recombine_text(text)
+    v = voice.lower()
+    audios = []
+    for t in progress.tqdm(texts):
+        audios.append(styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
+    return (24000, np.concatenate(audios))
 def clsynthesize(text, voice):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
@@ -59,6 +70,15 @@ with gr.Blocks() as clone:
             clbtn = gr.Button("Synthesize", variant="primary")
             claudio = gr.Audio(interactive=False, label="Synthesized Audio")
             clbtn.click(clsynthesize, inputs=[clinp, clvoice], outputs=[claudio], concurrency_limit=4)
+with gr.Blocks() as longText:
+    with gr.Row():
+        with gr.Column(scale=1):
+            clinp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
+            clvoice = gr.Audio(label="Voice", interactive=True, type='filepath', max_length=300)
+        with gr.Column(scale=1):
+            clbtn = gr.Button("Synthesize", variant="primary")
+            claudio = gr.Audio(interactive=False, label="Synthesized Audio")
+            clbtn.click(longsynthesize, inputs=[clinp, clvoice], outputs=[claudio], concurrency_limit=4)
 with gr.Blocks() as lj:
     with gr.Row():
         with gr.Column(scale=1):
@@ -80,7 +100,7 @@ Is there a long queue on this space? Duplicate it and add a more powerful GPU to
 
 **NOTE: StyleTTS 2 does better on longer texts.** For example, making it say "hi" will produce a lower-quality result than making it say a longer phrase.""")
     gr.DuplicateButton("Duplicate Space")
-    gr.TabbedInterface([vctk, clone, lj], ['Multi-Voice', 'Voice Cloning', 'LJSpeech'])
+    gr.TabbedInterface([vctk, clone, lj, longText], ['Multi-Voice', 'Voice Cloning', 'LJSpeech', 'Long Text [Beta]'])
     gr.Markdown("""
 Demo by by [mrfakename](https://twitter.com/realmrfakename). I am not affiliated with the StyleTTS 2 authors.
 

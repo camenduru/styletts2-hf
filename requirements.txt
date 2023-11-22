@@ -20,3 +20,4 @@ phonemizer
 cached-path
 gradio
 gruut
+tortoise-tts
