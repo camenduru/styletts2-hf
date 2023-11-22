@@ -61,8 +61,6 @@ with gr.Blocks() as lj:
 with gr.Blocks(title="StyleTTS 2", css="footer{display:none !important}", theme=theme) as demo:
     gr.Markdown("""# StyleTTS 2
 
-StyleTTS 2 demo by [mrfakename](https://twitter.com/realmrfakename).
-
 [Paper](https://arxiv.org/abs/2306.07691) - [Samples](https://styletts2.github.io/) - [Code](https://github.com/yl4579/StyleTTS2)
 
 A free demo of StyleTTS 2. **I am not affiliated with the StyleTTS 2 Authors.**
@@ -74,6 +72,7 @@ Is there a long queue on this space? Duplicate it and add a more powerful GPU to
 **NOTE: StyleTTS 2 does better on longer texts.** For example, making it say "hi" will produce a lower-quality result than making it say a longer phrase.""")
     gr.DuplicateButton("Duplicate Space")
     gr.TabbedInterface([vctk, clone, lj], ['Multi-Voice', 'Voice Cloning', 'LJSpeech'])
+    gr.Markdown("Demo by by [mrfakename](https://twitter.com/realmrfakename). I am not affiliated with the StyleTTS 2 authors.")
 if __name__ == "__main__":
     demo.queue(api_open=False, max_size=15).launch(show_api=False)
 
