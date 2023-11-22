@@ -1,5 +1,4 @@
 from cached_path import cached_path
-from dp.phonemizer import Phonemizer
 
 
 import torch
@@ -68,10 +67,10 @@ def compute_style(ref_dicts):
     return reference_embeddings
 
 # load phonemizer
-# import phonemizer
-# global_phonemizer = phonemizer.backend.EspeakBackend(language='en-us', preserve_punctuation=True, with_stress=True, words_mismatch='ignore')
+import phonemizer
+global_phonemizer = phonemizer.backend.EspeakBackend(language='en-us', preserve_punctuation=True, with_stress=True, words_mismatch='ignore')
 
-phonemizer = Phonemizer.from_checkpoint(str(cached_path('https://public-asai-dl-models.s3.eu-central-1.amazonaws.com/DeepPhonemizer/en_us_cmudict_ipa_forward.pt')))
+# phonemizer = Phonemizer.from_checkpoint(str(cached_path('https://public-asai-dl-models.s3.eu-central-1.amazonaws.com/DeepPhonemizer/en_us_cmudict_ipa_forward.pt')))
 
 
 config = yaml.safe_load(open(str(cached_path('hf://yl4579/StyleTTS2-LJSpeech/Models/LJSpeech/config.yml'))))
@@ -128,7 +127,7 @@ sampler = DiffusionSampler(
 def inference(text, noise, diffusion_steps=5, embedding_scale=1):
     text = text.strip()
     text = text.replace('"', '')
-    ps = phonemizer([text], lang='en_us')
+    ps = global_phonemizer.phonemize([text])
     ps = word_tokenize(ps[0])
     ps = ' '.join(ps)
 
@@ -177,7 +176,7 @@ def inference(text, noise, diffusion_steps=5, embedding_scale=1):
 def LFinference(text, s_prev, noise, alpha=0.7, diffusion_steps=5, embedding_scale=1):
   text = text.strip()
   text = text.replace('"', '')
-  ps = phonemizer([text], lang='en_us')
+  ps = global_phonemizer.phonemize([text])
   ps = word_tokenize(ps[0])
   ps = ' '.join(ps)
 

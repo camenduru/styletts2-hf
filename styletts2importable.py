@@ -1,6 +1,6 @@
 from cached_path import cached_path
 
-from dp.phonemizer import Phonemizer
+# from dp.phonemizer import Phonemizer
 print("NLTK")
 import nltk
 nltk.download('punkt')
@@ -73,9 +73,9 @@ elif torch.backends.mps.is_available():
     print("MPS would be available but cannot be used rn")
     # device = 'mps'
 
-
-# global_phonemizer = phonemizer.backend.EspeakBackend(language='en-us', preserve_punctuation=True,  with_stress=True)
-phonemizer = Phonemizer.from_checkpoint(str(cached_path('https://public-asai-dl-models.s3.eu-central-1.amazonaws.com/DeepPhonemizer/en_us_cmudict_ipa_forward.pt')))
+import phonemizer
+global_phonemizer = phonemizer.backend.EspeakBackend(language='en-us', preserve_punctuation=True,  with_stress=True)
+# phonemizer = Phonemizer.from_checkpoint(str(cached_path('https://public-asai-dl-models.s3.eu-central-1.amazonaws.com/DeepPhonemizer/en_us_cmudict_ipa_forward.pt')))
 
 
 # config = yaml.safe_load(open("Models/LibriTTS/config.yml"))
@@ -133,7 +133,7 @@ sampler = DiffusionSampler(
 
 def inference(text, ref_s, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding_scale=1):
     text = text.strip()
-    ps = phonemizer([text], lang='en_us')
+    ps = global_phonemizer.phonemize([text])
     ps = word_tokenize(ps[0])
     ps = ' '.join(ps)
     tokens = textclenaer(ps)
@@ -202,7 +202,7 @@ def inference(text, ref_s, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding
 
 def LFinference(text, s_prev, ref_s, alpha = 0.3, beta = 0.7, t = 0.7, diffusion_steps=5, embedding_scale=1):
   text = text.strip()
-  ps = phonemizer([text], lang='en_us')
+  ps = global_phonemizer.phonemize([text])
   ps = word_tokenize(ps[0])
   ps = ' '.join(ps)
   ps = ps.replace('``', '"')
@@ -279,7 +279,7 @@ def LFinference(text, s_prev, ref_s, alpha = 0.3, beta = 0.7, t = 0.7, diffusion
 
 def STinference(text, ref_s, ref_text, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding_scale=1):
     text = text.strip()
-    ps = phonemizer([text], lang='en_us')
+    ps = global_phonemizer.phonemize([text])
     ps = word_tokenize(ps[0])
     ps = ' '.join(ps)
 
@@ -288,7 +288,7 @@ def STinference(text, ref_s, ref_text, alpha = 0.3, beta = 0.7, diffusion_steps=
     tokens = torch.LongTensor(tokens).to(device).unsqueeze(0)
 
     ref_text = ref_text.strip()
-    ps = phonemizer([ref_text], lang='en_us')
+    ps = global_phonemizer.phonemize([ref_text])
     ps = word_tokenize(ps[0])
     ps = ' '.join(ps)
 
