@@ -44,7 +44,7 @@ with gr.Blocks() as clone:
     with gr.Row():
         with gr.Column(scale=1):
             clinp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
-            clvoice = gr.Audio(label="Voice", interactive=True)
+            clvoice = gr.Audio(label="Voice", interactive=True, type='filepath', max_length=300)
         with gr.Column(scale=1):
             clbtn = gr.Button("Synthesize", variant="primary")
             claudio = gr.Audio(interactive=False, label="Synthesized Audio")
