@@ -21,5 +21,3 @@ cached-path
 gradio
 gruut
 # tortoise-tts
-spacy
-scispacy
