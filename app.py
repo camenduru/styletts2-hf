@@ -65,16 +65,16 @@ def clsynthesize(text, voice, vcsteps):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
     # if global_phonemizer.phonemize([text]) > 300:
-    if len(text) > 300:
-        raise gr.Error("Text must be under 300 characters")
+    if len(text) > 400:
+        raise gr.Error("Text must be under 400 characters")
     # return (24000, styletts2importable.inference(text, styletts2importable.compute_style(voice), alpha=0.3, beta=0.7, diffusion_steps=20, embedding_scale=1))
     return (24000, styletts2importable.inference(text, styletts2importable.compute_style(voice), alpha=0.3, beta=0.7, diffusion_steps=vcsteps, embedding_scale=1))
 def ljsynthesize(text, steps):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
     # if global_phonemizer.phonemize([text]) > 300:
-    if len(text) > 300:
-        raise gr.Error("Text must be under 300 characters")
+    if len(text) > 400:
+        raise gr.Error("Text must be under 400 characters")
     noise = torch.randn(1,1,256).to('cuda' if torch.cuda.is_available() else 'cpu')
     return (24000, ljspeechimportable.inference(text, noise, diffusion_steps=steps, embedding_scale=1))
 
@@ -83,7 +83,7 @@ with gr.Blocks() as vctk: # just realized it isn't vctk but libritts but i'm too
     with gr.Row():
         with gr.Column(scale=1):
             inp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
-            voice = gr.Dropdown(voicelist, label="Voice", info="Select a default voice.", value='m-us-1', interactive=True)
+            voice = gr.Dropdown(voicelist, label="Voice", info="Select a default voice.", value='m-us-2', interactive=True)
             multispeakersteps = gr.Slider(minimum=5, maximum=15, value=7, step=1, label="Diffusion Steps", info="Higher = better quality, but slower", interactive=True)
             msexpand = gr.Checkbox(label="Expand acronyms", info="Expand acronyms using SciSpacy algorithm")
             # use_gruut = gr.Checkbox(label="Use alternate phonemizer (Gruut) - Experimental")
@@ -127,6 +127,8 @@ with gr.Blocks(title="StyleTTS 2", css="footer{display:none !important}", theme=
 [Paper](https://arxiv.org/abs/2306.07691) - [Samples](https://styletts2.github.io/) - [Code](https://github.com/yl4579/StyleTTS2)
 
 A free demo of StyleTTS 2. **I am not affiliated with the StyleTTS 2 Authors.**
+
+#### Help this space get to the top of HF's trending list! Please give this space a Like!
 
 **Before using this demo, you agree to inform the listeners that the speech samples are synthesized by the pre-trained models, unless you have the permission to use the voice you synthesize. That is, you agree to only use voices whose speakers grant the permission to have their voice cloned, either directly or by license before making synthesized voices public, or you have to publicly announce that these voices are synthesized if you do not have the permission to use these voices.**
 
