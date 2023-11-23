@@ -67,7 +67,7 @@ with gr.Blocks() as vctk: # just realized it isn't vctk but libritts but i'm too
     with gr.Row():
         with gr.Column(scale=1):
             inp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
-            voice = gr.Dropdown(voicelist, label="Voice", info="Select a default voice.", value='m-us-1', interactive=True)
+            voice = gr.Dropdown(voicelist, label="Voice", info="Select a default voice.", value='m-us-2', interactive=True)
             multispeakersteps = gr.Slider(minimum=5, maximum=15, value=7, step=1, label="Diffusion Steps", info="Higher = better quality, but slower", interactive=True)
             # use_gruut = gr.Checkbox(label="Use alternate phonemizer (Gruut) - Experimental")
         with gr.Column(scale=1):
