@@ -20,14 +20,15 @@ global_phonemizer = phonemizer.backend.EspeakBackend(language='en-us', preserve_
 # else:
 for v in voicelist:
     voices[v] = styletts2importable.compute_style(f'voices/{v}.wav')
-def synthesize(text, voice):
+def synthesize(text, voice, multispeakersteps):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
     # if len(global_phonemizer.phonemize([text])) > 300:
     if len(text) > 300:
         raise gr.Error("Text must be under 300 characters")
     v = voice.lower()
-    return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
+    # return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
+    return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=multispeakersteps, embedding_scale=1))
 def longsynthesize(text, voice, lngsteps, password, progress=gr.Progress()):
     if password == os.environ['ACCESS_CODE']:
         if text.strip() == "":
@@ -44,13 +45,14 @@ def longsynthesize(text, voice, lngsteps, password, progress=gr.Progress()):
         return (24000, np.concatenate(audios))
     else:
         raise gr.Error('Wrong access code')
-def clsynthesize(text, voice):
+def clsynthesize(text, voice, vcsteps):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
     # if global_phonemizer.phonemize([text]) > 300:
     if len(text) > 300:
         raise gr.Error("Text must be under 300 characters")
-    return (24000, styletts2importable.inference(text, styletts2importable.compute_style(voice), alpha=0.3, beta=0.7, diffusion_steps=20, embedding_scale=1))
+    # return (24000, styletts2importable.inference(text, styletts2importable.compute_style(voice), alpha=0.3, beta=0.7, diffusion_steps=20, embedding_scale=1))
+    return (24000, styletts2importable.inference(text, styletts2importable.compute_style(voice), alpha=0.3, beta=0.7, diffusion_steps=vcsteps, embedding_scale=1))
 def ljsynthesize(text):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
@@ -61,31 +63,33 @@ def ljsynthesize(text):
     return (24000, ljspeechimportable.inference(text, noise, diffusion_steps=7, embedding_scale=1))
 
 
-with gr.Blocks() as vctk:
+with gr.Blocks() as vctk: # just realized it isn't vctk but libritts but i'm too lazy to change it rn
     with gr.Row():
         with gr.Column(scale=1):
             inp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
             voice = gr.Dropdown(voicelist, label="Voice", info="Select a default voice.", value='m-us-1', interactive=True)
+            multispeakersteps = gr.Slider(minimum=5, maximum=15, value=7, step=1, label="Diffusion Steps", info="Higher = better quality, but slower", interactive=True)
             # use_gruut = gr.Checkbox(label="Use alternate phonemizer (Gruut) - Experimental")
         with gr.Column(scale=1):
             btn = gr.Button("Synthesize", variant="primary")
             audio = gr.Audio(interactive=False, label="Synthesized Audio")
-            btn.click(synthesize, inputs=[inp, voice], outputs=[audio], concurrency_limit=4)
+            btn.click(synthesize, inputs=[inp, voice, multispeakersteps], outputs=[audio], concurrency_limit=4)
 with gr.Blocks() as clone:
     with gr.Row():
         with gr.Column(scale=1):
             clinp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
             clvoice = gr.Audio(label="Voice", interactive=True, type='filepath', max_length=300)
+            vcsteps = gr.Slider(minimum=5, maximum=20, value=20, step=1, label="Diffusion Steps", info="Higher = better quality, but slower", interactive=True)
         with gr.Column(scale=1):
             clbtn = gr.Button("Synthesize", variant="primary")
             claudio = gr.Audio(interactive=False, label="Synthesized Audio")
-            clbtn.click(clsynthesize, inputs=[clinp, clvoice], outputs=[claudio], concurrency_limit=4)
+            clbtn.click(clsynthesize, inputs=[clinp, clvoice, vcsteps], outputs=[claudio], concurrency_limit=4)
 with gr.Blocks() as longText:
     with gr.Row():
         with gr.Column(scale=1):
             lnginp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
             lngvoice = gr.Dropdown(voicelist, label="Voice", info="Select a default voice.", value='m-us-1', interactive=True)
-            lngsteps = gr.Slider(minimum=5, maximum=25, value=10, step=1, label="Diffusion Steps", info="Higher = better quality, but longer", interactive=True)
+            lngsteps = gr.Slider(minimum=5, maximum=25, value=10, step=1, label="Diffusion Steps", info="Higher = better quality, but slower", interactive=True)
             lngpwd = gr.Textbox(label="Access code", info="This feature is in beta. You need an access code to use it as it uses more resources and we would like to prevent abuse")
         with gr.Column(scale=1):
             lngbtn = gr.Button("Synthesize", variant="primary")
