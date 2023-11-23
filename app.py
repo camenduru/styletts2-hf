@@ -3,7 +3,7 @@ import styletts2importable
 import ljspeechimportable
 import torch
 import os
-from tortoise.utils.text import split_and_recombine_text
+# from tortoise.utils.text import split_and_recombine_text
 import numpy as np
 import pickle
 theme = gr.themes.Base(
@@ -29,22 +29,22 @@ def synthesize(text, voice, multispeakersteps):
     v = voice.lower()
     # return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
     return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=multispeakersteps, embedding_scale=1))
-def longsynthesize(text, voice, lngsteps, password, progress=gr.Progress()):
-    if password == os.environ['ACCESS_CODE']:
-        if text.strip() == "":
-            raise gr.Error("You must enter some text")
-        if lngsteps > 25:
-            raise gr.Error("Max 25 steps")
-        if lngsteps < 5:
-            raise gr.Error("Min 5 steps")
-        texts = split_and_recombine_text(text)
-        v = voice.lower()
-        audios = []
-        for t in progress.tqdm(texts):
-            audios.append(styletts2importable.inference(t, voices[v], alpha=0.3, beta=0.7, diffusion_steps=lngsteps, embedding_scale=1))
-        return (24000, np.concatenate(audios))
-    else:
-        raise gr.Error('Wrong access code')
+# def longsynthesize(text, voice, lngsteps, password, progress=gr.Progress()):
+#     if password == os.environ['ACCESS_CODE']:
+#         if text.strip() == "":
+#             raise gr.Error("You must enter some text")
+#         if lngsteps > 25:
+#             raise gr.Error("Max 25 steps")
+#         if lngsteps < 5:
+#             raise gr.Error("Min 5 steps")
+#         texts = split_and_recombine_text(text)
+#         v = voice.lower()
+#         audios = []
+#         for t in progress.tqdm(texts):
+#             audios.append(styletts2importable.inference(t, voices[v], alpha=0.3, beta=0.7, diffusion_steps=lngsteps, embedding_scale=1))
+#         return (24000, np.concatenate(audios))
+#     else:
+#         raise gr.Error('Wrong access code')
 def clsynthesize(text, voice, vcsteps):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
@@ -84,17 +84,17 @@ with gr.Blocks() as clone:
             clbtn = gr.Button("Synthesize", variant="primary")
             claudio = gr.Audio(interactive=False, label="Synthesized Audio")
             clbtn.click(clsynthesize, inputs=[clinp, clvoice, vcsteps], outputs=[claudio], concurrency_limit=4)
-with gr.Blocks() as longText:
-    with gr.Row():
-        with gr.Column(scale=1):
-            lnginp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
-            lngvoice = gr.Dropdown(voicelist, label="Voice", info="Select a default voice.", value='m-us-1', interactive=True)
-            lngsteps = gr.Slider(minimum=5, maximum=25, value=10, step=1, label="Diffusion Steps", info="Higher = better quality, but slower", interactive=True)
-            lngpwd = gr.Textbox(label="Access code", info="This feature is in beta. You need an access code to use it as it uses more resources and we would like to prevent abuse")
-        with gr.Column(scale=1):
-            lngbtn = gr.Button("Synthesize", variant="primary")
-            lngaudio = gr.Audio(interactive=False, label="Synthesized Audio")
-            lngbtn.click(longsynthesize, inputs=[lnginp, lngvoice, lngsteps, lngpwd], outputs=[lngaudio], concurrency_limit=4)
+# with gr.Blocks() as longText:
+#     with gr.Row():
+#         with gr.Column(scale=1):
+#             lnginp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
+#             lngvoice = gr.Dropdown(voicelist, label="Voice", info="Select a default voice.", value='m-us-1', interactive=True)
+#             lngsteps = gr.Slider(minimum=5, maximum=25, value=10, step=1, label="Diffusion Steps", info="Higher = better quality, but slower", interactive=True)
+#             lngpwd = gr.Textbox(label="Access code", info="This feature is in beta. You need an access code to use it as it uses more resources and we would like to prevent abuse")
+#         with gr.Column(scale=1):
+#             lngbtn = gr.Button("Synthesize", variant="primary")
+#             lngaudio = gr.Audio(interactive=False, label="Synthesized Audio")
+#             lngbtn.click(longsynthesize, inputs=[lnginp, lngvoice, lngsteps, lngpwd], outputs=[lngaudio], concurrency_limit=4)
 with gr.Blocks() as lj:
     with gr.Row():
         with gr.Column(scale=1):
@@ -116,7 +116,8 @@ Is there a long queue on this space? Duplicate it and add a more powerful GPU to
 
 **NOTE: StyleTTS 2 does better on longer texts.** For example, making it say "hi" will produce a lower-quality result than making it say a longer phrase.""")
     gr.DuplicateButton("Duplicate Space")
-    gr.TabbedInterface([vctk, clone, lj, longText], ['Multi-Voice', 'Voice Cloning', 'LJSpeech', 'Long Text [Beta]'])
+    # gr.TabbedInterface([vctk, clone, lj, longText], ['Multi-Voice', 'Voice Cloning', 'LJSpeech', 'Long Text [Beta]'])
+    gr.TabbedInterface([vctk, clone, lj], ['Multi-Voice', 'Voice Cloning', 'LJSpeech', 'Long Text [Beta]'])
     gr.Markdown("""
 Demo by by [mrfakename](https://twitter.com/realmrfakename). I am not affiliated with the StyleTTS 2 authors.
 
