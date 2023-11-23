@@ -38,8 +38,8 @@ def synthesize(text, voice, multispeakersteps, msexpand):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
     # if len(global_phonemizer.phonemize([text])) > 300:
-    if len(text) > 400:
-        raise gr.Error("Text must be under 400 characters")
+    if len(text) > 300:
+        raise gr.Error("Text must be under 300 characters")
     if msexpand:
         text = replace_acronyms(text)
     v = voice.lower()
