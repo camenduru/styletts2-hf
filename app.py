@@ -6,6 +6,20 @@ import os
 # from tortoise.utils.text import split_and_recombine_text
 import numpy as np
 import pickle
+import spacy
+
+from scispacy.abbreviation import AbbreviationDetector
+nlp = spacy.load("en_core_sci_sm")
+
+# Add the abbreviation pipe to the spacy pipeline.
+nlp.add_pipe("abbreviation_detector")
+def replace_acronyms(text):
+    doc = nlp(text)
+    altered_tok = [tok.text for tok in doc]
+    for abrv in doc._.abbreviations:
+        altered_tok[abrv.start] = str(abrv._.long_form)
+
+    return(" ".join(altered_tok))
 theme = gr.themes.Base(
     font=[gr.themes.GoogleFont('Libre Franklin'), gr.themes.GoogleFont('Public Sans'), 'system-ui', 'sans-serif'],
 )
@@ -20,12 +34,14 @@ global_phonemizer = phonemizer.backend.EspeakBackend(language='en-us', preserve_
 # else:
 for v in voicelist:
     voices[v] = styletts2importable.compute_style(f'voices/{v}.wav')
-def synthesize(text, voice, multispeakersteps):
+def synthesize(text, voice, multispeakersteps, msexpand):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
     # if len(global_phonemizer.phonemize([text])) > 300:
     if len(text) > 300:
         raise gr.Error("Text must be under 300 characters")
+    if msexpand:
+        text = replace_acronyms(text)
     v = voice.lower()
     # return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
     return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=multispeakersteps, embedding_scale=1))
@@ -53,14 +69,14 @@ def clsynthesize(text, voice, vcsteps):
         raise gr.Error("Text must be under 300 characters")
     # return (24000, styletts2importable.inference(text, styletts2importable.compute_style(voice), alpha=0.3, beta=0.7, diffusion_steps=20, embedding_scale=1))
     return (24000, styletts2importable.inference(text, styletts2importable.compute_style(voice), alpha=0.3, beta=0.7, diffusion_steps=vcsteps, embedding_scale=1))
-def ljsynthesize(text):
+def ljsynthesize(text, steps):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
     # if global_phonemizer.phonemize([text]) > 300:
     if len(text) > 300:
         raise gr.Error("Text must be under 300 characters")
     noise = torch.randn(1,1,256).to('cuda' if torch.cuda.is_available() else 'cpu')
-    return (24000, ljspeechimportable.inference(text, noise, diffusion_steps=7, embedding_scale=1))
+    return (24000, ljspeechimportable.inference(text, noise, diffusion_steps=steps, embedding_scale=1))
 
 
 with gr.Blocks() as vctk: # just realized it isn't vctk but libritts but i'm too lazy to change it rn
@@ -69,11 +85,12 @@ with gr.Blocks() as vctk: # just realized it isn't vctk but libritts but i'm too
             inp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
             voice = gr.Dropdown(voicelist, label="Voice", info="Select a default voice.", value='m-us-1', interactive=True)
             multispeakersteps = gr.Slider(minimum=5, maximum=15, value=7, step=1, label="Diffusion Steps", info="Higher = better quality, but slower", interactive=True)
+            msexpand = gr.Checkbox(label="Expand acronyms", info="Expand acronyms using SciSpacy algorithm")
             # use_gruut = gr.Checkbox(label="Use alternate phonemizer (Gruut) - Experimental")
         with gr.Column(scale=1):
             btn = gr.Button("Synthesize", variant="primary")
             audio = gr.Audio(interactive=False, label="Synthesized Audio")
-            btn.click(synthesize, inputs=[inp, voice, multispeakersteps], outputs=[audio], concurrency_limit=4)
+            btn.click(synthesize, inputs=[inp, voice, multispeakersteps, msexpand], outputs=[audio], concurrency_limit=4)
 with gr.Blocks() as clone:
     with gr.Row():
         with gr.Column(scale=1):
@@ -83,7 +100,16 @@ with gr.Blocks() as clone:
         with gr.Column(scale=1):
             clbtn = gr.Button("Synthesize", variant="primary")
             claudio = gr.Audio(interactive=False, label="Synthesized Audio")
-            clbtn.click(clsynthesize, inputs=[clinp, clvoice, vcsteps], outputs=[claudio], concurrency_limit=4)
+            clbtn.click(clsynthesize, inputs=[clinp, clvoice, vcsteps], outputs=[claudio], concurrency_limit=2)
+with gr.Blocks() as lj:
+    with gr.Row():
+        with gr.Column(scale=1):
+            ljinp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
+        with gr.Column(scale=1):
+            ljbtn = gr.Button("Synthesize", variant="primary")
+            ljaudio = gr.Audio(interactive=False, label="Synthesized Audio")
+            ljsteps = gr.Slider(minimum=5, maximum=15, value=7, step=1, label="Diffusion Steps", info="Higher = better quality, but slower", interactive=True)
+            ljbtn.click(ljsynthesize, inputs=[ljinp, ljsteps], outputs=[ljaudio], concurrency_limit=4)
 # with gr.Blocks() as longText:
 #     with gr.Row():
 #         with gr.Column(scale=1):
@@ -95,14 +121,6 @@ with gr.Blocks() as clone:
 #             lngbtn = gr.Button("Synthesize", variant="primary")
 #             lngaudio = gr.Audio(interactive=False, label="Synthesized Audio")
 #             lngbtn.click(longsynthesize, inputs=[lnginp, lngvoice, lngsteps, lngpwd], outputs=[lngaudio], concurrency_limit=4)
-with gr.Blocks() as lj:
-    with gr.Row():
-        with gr.Column(scale=1):
-            ljinp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
-        with gr.Column(scale=1):
-            ljbtn = gr.Button("Synthesize", variant="primary")
-            ljaudio = gr.Audio(interactive=False, label="Synthesized Audio")
-            ljbtn.click(ljsynthesize, inputs=[ljinp], outputs=[ljaudio], concurrency_limit=4)
 with gr.Blocks(title="StyleTTS 2", css="footer{display:none !important}", theme=theme) as demo:
     gr.Markdown("""# StyleTTS 2
 
