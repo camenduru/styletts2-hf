@@ -24,8 +24,8 @@ def synthesize(text, voice, multispeakersteps):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
     # if len(global_phonemizer.phonemize([text])) > 300:
-    if len(text) > 350:
-        raise gr.Error("Text must be under 300 characters")
+    if len(text) > 400:
+        raise gr.Error("Text must be under 400 characters")
     v = voice.lower()
     # return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
     return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=multispeakersteps, embedding_scale=1))
@@ -49,16 +49,16 @@ def clsynthesize(text, voice, vcsteps):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
     # if global_phonemizer.phonemize([text]) > 300:
-    if len(text) > 350:
-        raise gr.Error("Text must be under 300 characters")
+    if len(text) > 400:
+        raise gr.Error("Text must be under 400 characters")
     # return (24000, styletts2importable.inference(text, styletts2importable.compute_style(voice), alpha=0.3, beta=0.7, diffusion_steps=20, embedding_scale=1))
     return (24000, styletts2importable.inference(text, styletts2importable.compute_style(voice), alpha=0.3, beta=0.7, diffusion_steps=vcsteps, embedding_scale=1))
 def ljsynthesize(text):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
     # if global_phonemizer.phonemize([text]) > 300:
-    if len(text) > 350:
-        raise gr.Error("Text must be under 300 characters")
+    if len(text) > 400:
+        raise gr.Error("Text must be under 400 characters")
     noise = torch.randn(1,1,256).to('cuda' if torch.cuda.is_available() else 'cpu')
     return (24000, ljspeechimportable.inference(text, noise, diffusion_steps=7, embedding_scale=1))
 
