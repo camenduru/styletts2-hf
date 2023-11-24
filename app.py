@@ -30,21 +30,20 @@ for v in voicelist:
 #     # return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
 #     return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=multispeakersteps, embedding_scale=1))
 def synthesize(text, voice, lngsteps, password, progress=gr.Progress()):
-    if password == os.environ['ACCESS_CODE']:
-        if text.strip() == "":
-            raise gr.Error("You must enter some text")
-        if lngsteps > 25:
-            raise gr.Error("Max 25 steps")
-        if lngsteps < 5:
-            raise gr.Error("Min 5 steps")
-        texts = split_and_recombine_text(text)
-        v = voice.lower()
-        audios = []
-        for t in progress.tqdm(texts):
-            audios.append(styletts2importable.inference(t, voices[v], alpha=0.3, beta=0.7, diffusion_steps=lngsteps, embedding_scale=1))
-        return (24000, np.concatenate(audios))
-    else:
-        raise gr.Error('Wrong access code')
+    if text.strip() == "":
+        raise gr.Error("You must enter some text")
+    if lngsteps > 25:
+        raise gr.Error("Max 25 steps")
+    if lngsteps < 5:
+        raise gr.Error("Min 5 steps")
+    if len(text) > 5000:
+        raise gr.Error("Text must be <5k characters")
+    texts = split_and_recombine_text(text)
+    v = voice.lower()
+    audios = []
+    for t in progress.tqdm(texts):
+        audios.append(styletts2importable.inference(t, voices[v], alpha=0.3, beta=0.7, diffusion_steps=lngsteps, embedding_scale=1))
+    return (24000, np.concatenate(audios))
 # def longsynthesize(text, voice, lngsteps, password, progress=gr.Progress()):
 #     if password == os.environ['ACCESS_CODE']:
 #         if text.strip() == "":
