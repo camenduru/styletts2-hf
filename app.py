@@ -3,7 +3,7 @@ import styletts2importable
 import ljspeechimportable
 import torch
 import os
-# from tortoise.utils.text import split_and_recombine_text
+from tortoise.utils.text import split_and_recombine_text
 import numpy as np
 import pickle
 theme = gr.themes.Base(
@@ -20,15 +20,31 @@ global_phonemizer = phonemizer.backend.EspeakBackend(language='en-us', preserve_
 # else:
 for v in voicelist:
     voices[v] = styletts2importable.compute_style(f'voices/{v}.wav')
-def synthesize(text, voice, multispeakersteps):
-    if text.strip() == "":
-        raise gr.Error("You must enter some text")
-    # if len(global_phonemizer.phonemize([text])) > 300:
-    if len(text) > 300:
-        raise gr.Error("Text must be under 300 characters")
-    v = voice.lower()
-    # return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
-    return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=multispeakersteps, embedding_scale=1))
+# def synthesize(text, voice, multispeakersteps):
+#     if text.strip() == "":
+#         raise gr.Error("You must enter some text")
+#     # if len(global_phonemizer.phonemize([text])) > 300:
+#     if len(text) > 300:
+#         raise gr.Error("Text must be under 300 characters")
+#     v = voice.lower()
+#     # return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
+#     return (24000, styletts2importable.inference(text, voices[v], alpha=0.3, beta=0.7, diffusion_steps=multispeakersteps, embedding_scale=1))
+def synthesize(text, voice, lngsteps, password, progress=gr.Progress()):
+    if password == os.environ['ACCESS_CODE']:
+        if text.strip() == "":
+            raise gr.Error("You must enter some text")
+        if lngsteps > 25:
+            raise gr.Error("Max 25 steps")
+        if lngsteps < 5:
+            raise gr.Error("Min 5 steps")
+        texts = split_and_recombine_text(text)
+        v = voice.lower()
+        audios = []
+        for t in progress.tqdm(texts):
+            audios.append(styletts2importable.inference(t, voices[v], alpha=0.3, beta=0.7, diffusion_steps=lngsteps, embedding_scale=1))
+        return (24000, np.concatenate(audios))
+    else:
+        raise gr.Error('Wrong access code')
 # def longsynthesize(text, voice, lngsteps, password, progress=gr.Progress()):
 #     if password == os.environ['ACCESS_CODE']:
 #         if text.strip() == "":
