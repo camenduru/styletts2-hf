@@ -136,7 +136,7 @@ Is there a long queue on this space? Duplicate it and add a more powerful GPU to
     # gr.TabbedInterface([vctk, clone, lj, longText], ['Multi-Voice', 'Voice Cloning', 'LJSpeech', 'Long Text [Beta]'])
     gr.TabbedInterface([vctk, clone, lj], ['Multi-Voice', 'Voice Cloning', 'LJSpeech', 'Long Text [Beta]'])
     gr.Markdown("""
-Demo by by [mrfakename](https://twitter.com/realmrfakename). I am not affiliated with the StyleTTS 2 authors.
+Demo by [mrfakename](https://twitter.com/realmrfakename). I am not affiliated with the StyleTTS 2 authors.
 
 Run this demo locally using Docker:
 
