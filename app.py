@@ -97,7 +97,7 @@ with gr.Blocks() as vctk: # just realized it isn't vctk but libritts but i'm too
         with gr.Column(scale=1):
             inp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
             voice = gr.Dropdown(voicelist, label="Voice", info="Select a default voice.", value='m-us-2', interactive=True)
-            multispeakersteps = gr.Slider(minimum=3, maximum=15, value=7, step=1, label="Diffusion Steps", info="Higher = better quality, but slower", interactive=True)
+            multispeakersteps = gr.Slider(minimum=3, maximum=15, value=7, step=1, label="Diffusion Steps", info="Theoretically, higher should be better quality but slower, but we cannot notice a difference. Try with lower steps first - it is faster", interactive=True)
             # use_gruut = gr.Checkbox(label="Use alternate phonemizer (Gruut) - Experimental")
         with gr.Column(scale=1):
             btn = gr.Button("Synthesize", variant="primary")
@@ -108,7 +108,7 @@ with gr.Blocks() as clone:
         with gr.Column(scale=1):
             clinp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
             clvoice = gr.Audio(label="Voice", interactive=True, type='filepath', max_length=300)
-            vcsteps = gr.Slider(minimum=3, maximum=20, value=20, step=1, label="Diffusion Steps", info="Higher = better quality, but slower", interactive=True)
+            vcsteps = gr.Slider(minimum=3, maximum=20, value=20, step=1, label="Diffusion Steps", info="Theoretically, higher should be better quality but slower, but we cannot notice a difference. Try with lower steps first - it is faster", interactive=True)
         with gr.Column(scale=1):
             clbtn = gr.Button("Synthesize", variant="primary")
             claudio = gr.Audio(interactive=False, label="Synthesized Audio")
@@ -128,7 +128,7 @@ with gr.Blocks() as lj:
     with gr.Row():
         with gr.Column(scale=1):
             ljinp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
-            ljsteps = gr.Slider(minimum=3, maximum=20, value=20, step=1, label="Diffusion Steps", info="Higher = better quality, but slower", interactive=True)
+            ljsteps = gr.Slider(minimum=3, maximum=20, value=3, step=1, label="Diffusion Steps", info="Theoretically, higher should be better quality but slower, but we cannot notice a difference. Try with lower steps first - it is faster", interactive=True)
         with gr.Column(scale=1):
             ljbtn = gr.Button("Synthesize", variant="primary")
             ljaudio = gr.Audio(interactive=False, label="Synthesized Audio")
