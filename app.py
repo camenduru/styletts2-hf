@@ -148,6 +148,13 @@ Is there a long queue on this space? Duplicate it and add a more powerful GPU to
 
 **NOTE: StyleTTS 2 does better on longer texts.** For example, making it say "hi" will produce a lower-quality result than making it say a longer phrase.""")
     gr.DuplicateButton("Duplicate Space")
+    gr.HTML("""<script async src="https://www.googletagmanager.com/gtag/js?id=G-KP5GWL8NN5"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-KP5GWL8NN5');
+</script>""")
     # gr.TabbedInterface([vctk, clone, lj, longText], ['Multi-Voice', 'Voice Cloning', 'LJSpeech', 'Long Text [Beta]'])
     gr.TabbedInterface([vctk, clone, lj], ['Multi-Voice', 'Voice Cloning', 'LJSpeech', 'Long Text [Beta]'])
     gr.Markdown("""
