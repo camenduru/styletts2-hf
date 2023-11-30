@@ -32,12 +32,8 @@ for v in voicelist:
 def synthesize(text, voice, lngsteps, password, progress=gr.Progress()):
     if text.strip() == "":
         raise gr.Error("You must enter some text")
-    if lngsteps > 25:
-        raise gr.Error("Max 25 steps")
-    if lngsteps < 5:
-        raise gr.Error("Min 5 steps")
-    if len(text) > 5000:
-        raise gr.Error("Text must be <5k characters")
+    if len(text) > 7500:
+        raise gr.Error("Text must be <7.5k characters")
     texts = split_and_recombine_text(text)
     v = voice.lower()
     audios = []
@@ -61,21 +57,41 @@ def synthesize(text, voice, lngsteps, password, progress=gr.Progress()):
 #     else:
 #         raise gr.Error('Wrong access code')
 def clsynthesize(text, voice, vcsteps):
+    # if text.strip() == "":
+    #     raise gr.Error("You must enter some text")
+    # # if global_phonemizer.phonemize([text]) > 300:
+    # if len(text) > 400:
+    #     raise gr.Error("Text must be under 400 characters")
+    # # return (24000, styletts2importable.inference(text, styletts2importable.compute_style(voice), alpha=0.3, beta=0.7, diffusion_steps=20, embedding_scale=1))
+    # return (24000, styletts2importable.inference(text, styletts2importable.compute_style(voice), alpha=0.3, beta=0.7, diffusion_steps=vcsteps, embedding_scale=1))
     if text.strip() == "":
         raise gr.Error("You must enter some text")
-    # if global_phonemizer.phonemize([text]) > 300:
-    if len(text) > 400:
-        raise gr.Error("Text must be under 400 characters")
-    # return (24000, styletts2importable.inference(text, styletts2importable.compute_style(voice), alpha=0.3, beta=0.7, diffusion_steps=20, embedding_scale=1))
-    return (24000, styletts2importable.inference(text, styletts2importable.compute_style(voice), alpha=0.3, beta=0.7, diffusion_steps=vcsteps, embedding_scale=1))
-def ljsynthesize(text):
-    if text.strip() == "":
-        raise gr.Error("You must enter some text")
-    # if global_phonemizer.phonemize([text]) > 300:
-    if len(text) > 400:
-        raise gr.Error("Text must be under 400 characters")
+    if len(text) > 7500:
+        raise gr.Error("Text must be <7.5k characters")
+    texts = split_and_recombine_text(text)
+    v = voice.lower()
+    audios = []
+    for t in progress.tqdm(texts):
+        audios.append(styletts2importable.inference(t, styletts2importable.compute_style(voice), alpha=0.3, beta=0.7, diffusion_steps=vcsteps, embedding_scale=1))
+    return (24000, np.concatenate(audios))
+def ljsynthesize(text, steps):
+    # if text.strip() == "":
+    #     raise gr.Error("You must enter some text")
+    # # if global_phonemizer.phonemize([text]) > 300:
+    # if len(text) > 400:
+    #     raise gr.Error("Text must be under 400 characters")
     noise = torch.randn(1,1,256).to('cuda' if torch.cuda.is_available() else 'cpu')
-    return (24000, ljspeechimportable.inference(text, noise, diffusion_steps=7, embedding_scale=1))
+    # return (24000, ljspeechimportable.inference(text, noise, diffusion_steps=7, embedding_scale=1))
+    if text.strip() == "":
+        raise gr.Error("You must enter some text")
+    if len(text) > 7500:
+        raise gr.Error("Text must be <7.5k characters")
+    texts = split_and_recombine_text(text)
+    v = voice.lower()
+    audios = []
+    for t in progress.tqdm(texts):
+        audios.append(ljspeechimportable.inference(t, noise, diffusion_steps=steps, embedding_scale=1))
+    return (24000, np.concatenate(audios))
 
 
 with gr.Blocks() as vctk: # just realized it isn't vctk but libritts but i'm too lazy to change it rn
@@ -83,7 +99,7 @@ with gr.Blocks() as vctk: # just realized it isn't vctk but libritts but i'm too
         with gr.Column(scale=1):
             inp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
             voice = gr.Dropdown(voicelist, label="Voice", info="Select a default voice.", value='m-us-2', interactive=True)
-            multispeakersteps = gr.Slider(minimum=5, maximum=15, value=7, step=1, label="Diffusion Steps", info="Higher = better quality, but slower", interactive=True)
+            multispeakersteps = gr.Slider(minimum=3, maximum=15, value=7, step=1, label="Diffusion Steps", info="Higher = better quality, but slower", interactive=True)
             # use_gruut = gr.Checkbox(label="Use alternate phonemizer (Gruut) - Experimental")
         with gr.Column(scale=1):
             btn = gr.Button("Synthesize", variant="primary")
@@ -94,7 +110,7 @@ with gr.Blocks() as clone:
         with gr.Column(scale=1):
             clinp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
             clvoice = gr.Audio(label="Voice", interactive=True, type='filepath', max_length=300)
-            vcsteps = gr.Slider(minimum=5, maximum=20, value=20, step=1, label="Diffusion Steps", info="Higher = better quality, but slower", interactive=True)
+            vcsteps = gr.Slider(minimum=3, maximum=20, value=20, step=1, label="Diffusion Steps", info="Higher = better quality, but slower", interactive=True)
         with gr.Column(scale=1):
             clbtn = gr.Button("Synthesize", variant="primary")
             claudio = gr.Audio(interactive=False, label="Synthesized Audio")
@@ -114,10 +130,11 @@ with gr.Blocks() as lj:
     with gr.Row():
         with gr.Column(scale=1):
             ljinp = gr.Textbox(label="Text", info="What would you like StyleTTS 2 to read? It works better on full sentences.", interactive=True)
+            ljsteps = gr.Slider(minimum=3, maximum=20, value=20, step=1, label="Diffusion Steps", info="Higher = better quality, but slower", interactive=True)
         with gr.Column(scale=1):
             ljbtn = gr.Button("Synthesize", variant="primary")
             ljaudio = gr.Audio(interactive=False, label="Synthesized Audio")
-            ljbtn.click(ljsynthesize, inputs=[ljinp], outputs=[ljaudio], concurrency_limit=4)
+            ljbtn.click(ljsynthesize, inputs=[ljinp, ljsteps], outputs=[ljaudio], concurrency_limit=4)
 with gr.Blocks(title="StyleTTS 2", css="footer{display:none !important}", theme=theme) as demo:
     gr.Markdown("""# StyleTTS 2
 
