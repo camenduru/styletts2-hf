@@ -56,7 +56,7 @@ def synthesize(text, voice, lngsteps, password, progress=gr.Progress()):
 #         return (24000, np.concatenate(audios))
 #     else:
 #         raise gr.Error('Wrong access code')
-def clsynthesize(text, voice, vcsteps):
+def clsynthesize(text, voice, vcsteps, progress=gr.Progress()):
     # if text.strip() == "":
     #     raise gr.Error("You must enter some text")
     # # if global_phonemizer.phonemize([text]) > 300:
@@ -69,12 +69,11 @@ def clsynthesize(text, voice, vcsteps):
     if len(text) > 7500:
         raise gr.Error("Text must be <7.5k characters")
     texts = split_and_recombine_text(text)
-    v = voice.lower()
     audios = []
     for t in progress.tqdm(texts):
         audios.append(styletts2importable.inference(t, styletts2importable.compute_style(voice), alpha=0.3, beta=0.7, diffusion_steps=vcsteps, embedding_scale=1))
     return (24000, np.concatenate(audios))
-def ljsynthesize(text, steps):
+def ljsynthesize(text, steps, progress=gr.Progress()):
     # if text.strip() == "":
     #     raise gr.Error("You must enter some text")
     # # if global_phonemizer.phonemize([text]) > 300:
