@@ -87,7 +87,6 @@ def ljsynthesize(text, steps):
     if len(text) > 7500:
         raise gr.Error("Text must be <7.5k characters")
     texts = split_and_recombine_text(text)
-    v = voice.lower()
     audios = []
     for t in progress.tqdm(texts):
         audios.append(ljspeechimportable.inference(t, noise, diffusion_steps=steps, embedding_scale=1))
