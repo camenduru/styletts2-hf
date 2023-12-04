@@ -138,10 +138,6 @@ with gr.Blocks(title="StyleTTS 2", css="footer{display:none !important}", theme=
 
 [Paper](https://arxiv.org/abs/2306.07691) - [Samples](https://styletts2.github.io/) - [Code](https://github.com/yl4579/StyleTTS2)
 
-A free demo of StyleTTS 2. **I am not affiliated with the StyleTTS 2 Authors.**
-
-#### Help this space get to the top of HF's trending list! Please give this space a Like!
-
 **Before using this demo, you agree to inform the listeners that the speech samples are synthesized by the pre-trained models, unless you have the permission to use the voice you synthesize. That is, you agree to only use voices whose speakers grant the permission to have their voice cloned, either directly or by license before making synthesized voices public, or you have to publicly announce that these voices are synthesized if you do not have the permission to use these voices.**
 
 **NOTE: StyleTTS 2 does better on longer texts.** For example, making it say "hi" will produce a lower-quality result than making it say a longer phrase.""")
