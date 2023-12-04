@@ -164,11 +164,6 @@ A free demo of StyleTTS 2. **I am not affiliated with the StyleTTS 2 Authors.**
     gr.Markdown("""
 Demo by [mrfakename](https://twitter.com/realmrfakename). I am not affiliated with the StyleTTS 2 authors.
 
-Run this demo locally using Docker:
-
-```bash
-docker run -it -p 7860:7860 --platform=linux/amd64 --gpus all registry.hf.space/styletts2-styletts2:latest python app.py
-```
 """)
 if __name__ == "__main__":
     demo.queue(api_open=False, max_size=15).launch(show_api=False, share=True)
